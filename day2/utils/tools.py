@@ -157,7 +157,7 @@ def logarithmic_sampling(num_epochs):
             pred_epoch_list.append(result)
 
     return pred_epoch_list
-
+@torch.no_grad()
 def get_prediction(model, period, device):
     """
     Get the predicted solution of the Schrödinger equation.
@@ -195,8 +195,8 @@ def get_prediction(model, period, device):
     t = torch.linspace(0,period,300)
 
     # Create a meshgrid
-    X,T = torch.meshgrid(x,t)
-    _X = torch.tensor(torch.dstack((X,T))).clone().detach().float().to(device)
+    X,T = torch.meshgrid(x, t, indexing="ij")
+    _X = torch.stack((X, T), dim=-1).to(device=device, dtype=torch.float32)
 
     # Compute the predicted real and imaginary parts of the solution
     h_r_hat, h_i_hat = model(_X)
